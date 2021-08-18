@@ -1,0 +1,2 @@
+FROM sonarqube:6.7.7-community
+RUN wget -O /opt/sonarqube/extensions/plugins/sonar-flutter-plugin-0.3.2.jar https://github.com/insideapp-oss/sonar-flutter/releases/download/0.3.2/sonar-flutter-plugin-0.3.2.jar
