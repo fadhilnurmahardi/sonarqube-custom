@@ -5,8 +5,8 @@ ARG SONAR_SCANNER_VERSION=4.6.2.2472
 ARG UID=1000
 ARG GID=1000
 ENV JAVA_HOME=/opt/java/openjdk \
-    HOME=/tmp \
-    XDG_CONFIG_HOME=/tmp \
+    HOME=/sonarqube-scanner \
+    XDG_CONFIG_HOME=/sonarqube-scanner \
     SONAR_SCANNER_HOME=${SONAR_SCANNER_HOME} \
     SONAR_USER_HOME=${SONAR_SCANNER_HOME}/.sonar \
     PATH=/opt/java/openjdk/bin:${SONAR_SCANNER_HOME}/bin:${PATH} \
@@ -20,14 +20,16 @@ RUN apt-get update -y && apt-get install apt-transport-https curl wget git unzip
 RUN curl -fsSL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get install -y nodejs
 
-RUN sh -c 'wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -'
-RUN sh -c 'wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > /etc/apt/sources.list.d/dart_stable.list'
+ENV FLUTTER_HOME=${HOME}/sdks/flutter \
+    FLUTTER_VERSION=2.0.3
+ENV FLUTTER_ROOT=$FLUTTER_HOME
 
-RUN git clone https://github.com/flutter/flutter.git /usr/lib/flutter/
-RUN echo 'export $PATH:/usr/lib/flutter/bin' >> ~/.profile
+ENV PATH ${PATH}:${FLUTTER_HOME}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin
 
-RUN apt-get update -y && apt-get install dart -y
-RUN echo 'export $PATH:/usr/lib/dart/bin' >> ~/.profile
+RUN git clone --depth 1 --branch ${FLUTTER_VERSION} https://github.com/flutter/flutter.git ${FLUTTER_HOME}
+
+RUN yes | flutter doctor --android-licenses \
+    && flutter doctor
 
 WORKDIR /opt
 
